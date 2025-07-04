@@ -17,7 +17,7 @@ public class GetCandlesOfMostRecentTradingDayDataServiceTests
     }
 
     [Theory, AutoData]
-    public async Task GIVEN_data_for_several_tickers_WHEN_GetCandlesOfMostRecentTradingDay_THEN_only_returns_data_for_the_requested_tickers(Finance.Net.Models.Yahoo.Record appleRecord, Finance.Net.Models.Yahoo.Record palantirRecord)
+    public async Task GIVEN_data_for_several_tickers_WHEN_Get_THEN_only_returns_data_for_the_requested_tickers(Finance.Net.Models.Yahoo.Record appleRecord, Finance.Net.Models.Yahoo.Record palantirRecord)
     {
         var startDate = DateTime.UtcNow.Date.AddDays(-1);
         A.CallTo(() => _yahooFinanceService.GetRecordsAsync("AAPL", startDate, null, TestContext.Current.CancellationToken)).Returns(new List<Finance.Net.Models.Yahoo.Record>
@@ -29,9 +29,9 @@ public class GetCandlesOfMostRecentTradingDayDataServiceTests
             palantirRecord
         });
 
-        var closingCandles = await _sut.GetCandlesOfMostRecentTradingDay(["AAPL"], TestContext.Current.CancellationToken);
+        var closingCandles = await _sut.Get(["AAPL"], TestContext.Current.CancellationToken);
 
         var closingCandle = Assert.Single(closingCandles);
-        Assert.Equivalent(new Candle(appleRecord.Date, appleRecord.Close, appleRecord.Volume), closingCandle);
+        Assert.Equivalent(new Candle("AAPL", appleRecord.Date, appleRecord.Close, appleRecord.Volume), closingCandle);
     }
 }

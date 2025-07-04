@@ -26,9 +26,9 @@ public class WatchListDataServiceTests
         var blobClient = _watchlistsContainerClient.GetBlobClient("buylist_may.json");
         await blobClient.UploadAsync(BinaryData.FromString(JsonSerializer.Serialize(seededWatchList)), overwrite: true, cancellationToken: currentCancellationToken);
 
-        var watchLists = await _sut.GetWatchLists(currentCancellationToken);
+        var watchlists = await _sut.GetWatchLists(currentCancellationToken);
         
-        var watchlist = Assert.Single(watchLists);
+        var watchlist = Assert.Single(watchlists);
         Assert.Equivalent(watchlist, seededWatchList);
     }
 }
