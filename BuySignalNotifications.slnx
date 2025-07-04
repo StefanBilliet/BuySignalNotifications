@@ -1,0 +1,4 @@
+﻿<Solution>
+  <Project Path="BuySignalNotifications\BuySignalNotifications.csproj" Type="Classic C#" />
+  <Project Path="Tests/Tests.csproj" Type="Classic C#" />
+</Solution>

@@ -1,4 +1,4 @@
-using BuySignalNotifier;
+using BuySignalNotifications;
 using FakeItEasy;
 
 namespace Tests;

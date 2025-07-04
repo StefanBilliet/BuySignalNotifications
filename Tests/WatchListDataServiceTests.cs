@@ -1,6 +1,6 @@
 using System.Text.Json;
 using Azure.Storage.Blobs;
-using BuySignalNotifier;
+using BuySignalNotifications;
 
 namespace Tests;
 

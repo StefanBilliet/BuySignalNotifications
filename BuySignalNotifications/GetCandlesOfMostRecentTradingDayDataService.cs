@@ -1,7 +1,7 @@
 using Finance.Net.Interfaces;
 using Finance.Net.Models.Yahoo;
 
-namespace BuySignalNotifier;
+namespace BuySignalNotifications;
 
 public interface IGetCandlesOfMostRecentTradingDayDataService
 {

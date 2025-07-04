@@ -30,6 +30,7 @@
         <PackageReference Include="AutoFixture.Xunit3" Version="4.19.0" />
         <PackageReference Include="Azure.Storage.Blobs" Version="12.24.1" />
         <PackageReference Include="FakeItEasy" Version="8.3.0" />
+        <PackageReference Include="Finance.NET" Version="1.0.10" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.6" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0"/>
         <PackageReference Include="Testcontainers.Azurite" Version="4.6.0" />
@@ -38,7 +39,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\BuySignalNotifier\BuySignalNotifier.csproj" />
+      <ProjectReference Include="..\BuySignalNotifications\BuySignalNotifications.csproj" />
     </ItemGroup>
 
 </Project>

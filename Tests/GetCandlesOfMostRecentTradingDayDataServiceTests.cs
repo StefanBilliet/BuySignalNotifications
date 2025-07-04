@@ -1,5 +1,5 @@
 using AutoFixture.Xunit3;
-using BuySignalNotifier;
+using BuySignalNotifications;
 using FakeItEasy;
 using Finance.Net.Interfaces;
 

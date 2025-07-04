@@ -1,4 +1,4 @@
-namespace BuySignalNotifier;
+namespace BuySignalNotifications;
 
 public class BuySignalDetector
 {

@@ -1,7 +1,7 @@
 using System.Text.Json;
 using Azure.Storage.Blobs;
 
-namespace BuySignalNotifier;
+namespace BuySignalNotifications;
 
 public interface IWatchListDataService
 {

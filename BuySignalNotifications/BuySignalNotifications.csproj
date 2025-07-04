@@ -8,6 +8,7 @@
     </PropertyGroup>
     <ItemGroup>
         <FrameworkReference Include="Microsoft.AspNetCore.App"/>
+        <PackageReference Include="Azure.Communication.Email" Version="1.0.1" />
         <PackageReference Include="Azure.Storage.Blobs" Version="12.24.1" />
         <PackageReference Include="Finance.NET" Version="1.0.10" />
         <PackageReference Include="Microsoft.ApplicationInsights.WorkerService" Version="2.23.0"/>
