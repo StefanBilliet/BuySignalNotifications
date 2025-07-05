@@ -1,6 +1,11 @@
 namespace BuySignalNotifications;
 
-public class BuySignalDetector
+public interface IBuySignalDetector
+{
+    Task<IReadOnlyCollection<Watchlist>> SearchForBuySignals(CancellationToken cancellationToken);
+}
+
+public class BuySignalDetector : IBuySignalDetector
 {
     private readonly IWatchListDataService _watchlistDataService;
     private readonly IGetCandlesOfMostRecentTradingDayDataService _getCandlesOfMostRecentTradingDayDataService;

@@ -4,7 +4,12 @@ using Microsoft.Extensions.Options;
 
 namespace BuySignalNotifications;
 
-public class BuySignalNotifier
+public interface IBuySignalNotifier
+{
+    Task ProcessWatchLists(IReadOnlyCollection<Watchlist> watchlists, CancellationToken cancellationToken);
+}
+
+public class BuySignalNotifier : IBuySignalNotifier
 {
     private readonly EmailClient _emailClient;
     private readonly IOptions<BuySignalNotifierOptions> _options;
