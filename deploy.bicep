@@ -60,6 +60,10 @@ resource func 'Microsoft.Web/sites@2021-02-01' = {
           value: '~4'
         }
         {
+          name: 'FUNCTIONS_WORKER_RUNTIME'
+          value: 'dotnet-isolated'
+        }
+        {
           name: 'AcsEmailConnectionString'
           value: comm.listKeys().primaryConnectionString
         }
@@ -75,7 +79,7 @@ resource func 'Microsoft.Web/sites@2021-02-01' = {
 // 7. Blob container for your JSON
 resource container 'Microsoft.Storage/storageAccounts/blobServices/containers@2022-09-01' = {
   parent: blobServices
-  name: 'config'
+  name: 'watchlists'
   properties: { 
     publicAccess: 'None' 
   }
