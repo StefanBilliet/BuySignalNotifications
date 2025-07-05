@@ -8,27 +8,39 @@ param baseName string
 var uniqueSuffix = uniqueString(resourceGroup().id)
 
 // 1. Storage Account (global name must be unique)
-resource sa 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+resource sa 'Microsoft.Storage/storageAccounts@2024-01-01' = {
   name: toLower('${baseName}sa${uniqueSuffix}')
   location: location
   sku: { name: 'Standard_LRS' }
   kind: 'StorageV2'
 }
 
+// 2. App Insights
+resource ai 'Microsoft.Insights/components@2020-02-02' = {
+  name: '${baseName}-ai'
+  location: location
+  kind: 'web'
+  properties: {
+    Application_Type: 'web'
+  }
+}
 
-// 2. Consumption Plan
-resource plan 'Microsoft.Web/serverfarms@2021-02-01' = {
+// 3. Consumption Plan - Updated to match the ARM template
+resource plan 'Microsoft.Web/serverfarms@2024-11-01' = {
   name: '${baseName}-plan'
   location: location
+  kind: 'functionapp'
   sku: {
     name: 'Y1'
     tier: 'Dynamic'
   }
-  kind: 'functionapp'
+  properties: {
+    reserved: true
+  }
 }
 
-// 3. Communication Services (Email) – must use 'global' location
-resource comm 'Microsoft.Communication/communicationServices@2023-03-31' = {
+// 4. Communication Services (Email) – must use 'global' location
+resource comm 'Microsoft.Communication/communicationServices@2023-04-01' = {
   name: '${baseName}-comm'
   location: 'global'
   properties: {
@@ -36,20 +48,22 @@ resource comm 'Microsoft.Communication/communicationServices@2023-03-31' = {
   }
 }
 
-// 4. Blob Services (needed for container)
-resource blobServices 'Microsoft.Storage/storageAccounts/blobServices@2022-09-01' = {
+// 5. Blob Services (needed for container)
+resource blobServices 'Microsoft.Storage/storageAccounts/blobServices@2024-01-01' = {
   parent: sa
   name: 'default'
 }
 
-// 6. Function App
-resource func 'Microsoft.Web/sites@2021-02-01' = {
+// 6. Function App - without linuxFxVersion initially
+resource func 'Microsoft.Web/sites@2024-11-01' = {
   name: '${baseName}-func'
   location: location
-  kind: 'functionapp'
+  kind: 'functionapp,linux'
   properties: {
     serverFarmId: plan.id
-    siteConfig: {
+    reserved: true
+    siteConfig: { 
+      linuxFxVersion: 'DOTNET-ISOLATED|9.0'
       appSettings: [
         {
           name: 'AzureWebJobsStorage'
@@ -60,15 +74,19 @@ resource func 'Microsoft.Web/sites@2021-02-01' = {
           value: '~4'
         }
         {
+          name: 'SCM_DO_BUILD_DURING_DEPLOYMENT'
+          value: '0'
+        }
+        {
           name: 'FUNCTIONS_WORKER_RUNTIME'
-          value: 'dotnet-isolated'
+          value: 'DOTNET-ISOLATED'
         }
         {
           name: 'AcsEmailConnectionString'
           value: comm.listKeys().primaryConnectionString
         }
         {
-          name: 'BuySignalNotifier:SenderEmailAddress'
+          name: 'BuySignalNotifier__SenderEmailAddress'
           value: 'your-email@example.com'
         }
       ]
@@ -77,9 +95,9 @@ resource func 'Microsoft.Web/sites@2021-02-01' = {
 }
 
 // 7. Blob container for your JSON
-resource container 'Microsoft.Storage/storageAccounts/blobServices/containers@2022-09-01' = {
+resource container 'Microsoft.Storage/storageAccounts/blobServices/containers@2024-01-01' = {
   parent: blobServices
-  name: 'watchlists'
+  name: 'config'
   properties: { 
     publicAccess: 'None' 
   }

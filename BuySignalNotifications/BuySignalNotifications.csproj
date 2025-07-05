@@ -2,6 +2,8 @@
     <PropertyGroup>
         <TargetFramework>net9.0</TargetFramework>
         <AzureFunctionsVersion>V4</AzureFunctionsVersion>
+        <FunctionsWorkerRuntime>dotnet-isolated</FunctionsWorkerRuntime>
+        <GenerateFunctionsWorkerMetadata>true</GenerateFunctionsWorkerMetadata>
         <OutputType>Exe</OutputType>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
