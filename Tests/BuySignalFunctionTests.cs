@@ -1,13 +1,13 @@
 using System.Text.Json;
 using AutoFixture.Xunit3;
-using Azure;
-using Azure.Communication.Email;
 using Azure.Storage.Blobs;
 using BuySignalNotifications;
 using FakeItEasy;
 using Finance.Net.Interfaces;
+using MailKit.Net.Smtp;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.DependencyInjection;
+using MimeKit;
 using Record = Finance.Net.Models.Yahoo.Record;
 
 namespace Tests;
@@ -18,13 +18,13 @@ public class BuySignalFunctionTests
     private readonly BuySignalFunction _sut;
     private readonly BlobContainerClient _watchlistsContainerClient;
     private readonly IYahooFinanceService _yahooFinanceService;
-    private readonly EmailClient _emailClient;
+    private readonly ISmtpClient _emailClient;
 
     public BuySignalFunctionTests(FunctionAppFixture fixture)
     {
         _yahooFinanceService = fixture.ServiceProvider.GetRequiredService<IYahooFinanceService>();
         _watchlistsContainerClient = fixture.ServiceProvider.GetRequiredService<BlobContainerClient>();
-        _emailClient = fixture.ServiceProvider.GetRequiredService<EmailClient>();
+        _emailClient = fixture.ServiceProvider.GetRequiredService<ISmtpClient>();
         _sut = fixture.ServiceProvider.GetRequiredService<BuySignalFunction>();
     }
 
@@ -32,17 +32,17 @@ public class BuySignalFunctionTests
     public async Task GIVEN_watchlist_WHEN_ProcessBuySignals_THEN_send_email_with_buy_signals(Record appleRecord, Record palantirRecord)
     {
         var seededWatchList = await GivenSeededWatchlist(appleRecord, palantirRecord);
-        EmailMessage sentEmail = null!;
-        A.CallTo(() => _emailClient.SendAsync(WaitUntil.Started, A<EmailMessage>._, TestContext.Current.CancellationToken))
-            .Invokes(fakedCall => sentEmail = fakedCall.Arguments.Get<EmailMessage>(1)!);
+        MimeMessage sentEmail = null!;
+        A.CallTo(() => _emailClient.SendAsync(A<MimeMessage>._, TestContext.Current.CancellationToken, null)).Invokes(fakedCall => sentEmail = fakedCall.Arguments.Get<MimeMessage>(0)!);
         var mockContext = GivenFunctionContext();
 
         await _sut.ProcessBuySignals(new TimerInfo(), mockContext);
 
-        Assert.Equal("donotreply@buysignalnotifications.com", sentEmail.SenderAddress);
-        Assert.Equal($"Buy signals for {DateTime.UtcNow.Date:dd-MM-yyyy}", sentEmail.Content.Subject);
-        Assert.Equal(seededWatchList.EmailAddressOfOwner, sentEmail.Recipients.To.Single().Address);
-        Assert.Contains("AAPL", sentEmail.Content.Html);
+        Assert.Contains("AAPL", sentEmail.HtmlBody);
+        Assert.Equal("donotreply@buysignalnotifications.com", sentEmail.Sender.Address);
+        Assert.Equal($"Buy signals for {DateTime.UtcNow.Date:dd-MM-yyyy}", sentEmail.Subject);
+        var recipientEmailAddress = Assert.IsType<MailboxAddress>(sentEmail.To.Single());
+        Assert.Equal(seededWatchList.EmailAddressOfOwner, recipientEmailAddress.Address);
     }
 
     private static FunctionContext GivenFunctionContext()

@@ -1,6 +1,6 @@
-using Azure.Communication.Email;
 using Azure.Storage.Blobs;
 using Finance.Net.Extensions;
+using MailKit.Net.Smtp;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -11,7 +11,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddBuySignalNotificationServices(this IServiceCollection services, IConfiguration configuration)
     {
         services
-            .AddSingleton(provider =>
+            .AddSingleton(_ =>
             {
                 var connectionString = configuration.GetConnectionString("AzureWebJobsStorage");
                 return new BlobServiceClient(connectionString);
@@ -21,7 +21,7 @@ public static class ServiceCollectionExtensions
                 var blobServiceClient = provider.GetRequiredService<BlobServiceClient>();
                 return blobServiceClient.GetBlobContainerClient("watchlists");
             })
-            .AddSingleton(provider => new EmailClient(configuration.GetConnectionString("AcsEmailConnectionString")))
+            .AddTransient<ISmtpClient, SmtpClient>()
             .AddTransient<IWatchListDataService, WatchListDataService>()
             .AddTransient<IBuySignalDetector, BuySignalDetector>()
             .AddTransient<IBuySignalNotifier, BuySignalNotifier>()

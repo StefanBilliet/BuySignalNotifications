@@ -1,7 +1,7 @@
-using Azure.Communication.Email;
 using BuySignalNotifications;
 using FakeItEasy;
 using Finance.Net.Interfaces;
+using MailKit.Net.Smtp;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -30,7 +30,7 @@ public sealed class FunctionAppFixture : IAsyncLifetime
             {
                 config.AddInMemoryCollection(new Dictionary<string, string?>
                 {
-                    ["ConnectionStrings:AzureStorage"] = azuriteFixture.Container.GetConnectionString(),
+                    ["ConnectionStrings:AzureWebJobsStorage"] = azuriteFixture.Container.GetConnectionString(),
                     ["ConnectionStrings:AcsEmailConnectionString"] = "endpoint=https://test.communication.azure.com/;accesskey=fake-key-for-testing",
                     ["BuySignalNotifier:SenderEmailAddress"] = "donotreply@buysignalnotifications.com"
                 });
@@ -38,7 +38,7 @@ public sealed class FunctionAppFixture : IAsyncLifetime
             .ConfigureServices((context, services) => services
                 .AddBuySignalNotificationServices(context.Configuration)
                 .AddSingleton(A.Fake<IYahooFinanceService>())
-                .AddSingleton(A.Fake<EmailClient>())
+                .AddSingleton(A.Fake<ISmtpClient>())
             )
             .Build();
     }

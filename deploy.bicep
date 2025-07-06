@@ -39,15 +39,6 @@ resource plan 'Microsoft.Web/serverfarms@2024-11-01' = {
   }
 }
 
-// 4. Communication Services (Email) – must use 'global' location
-resource comm 'Microsoft.Communication/communicationServices@2023-04-01' = {
-  name: '${baseName}-comm'
-  location: 'global'
-  properties: {
-    dataLocation: 'Europe'
-  }
-}
-
 // 5. Blob Services (needed for container)
 resource blobServices 'Microsoft.Storage/storageAccounts/blobServices@2024-01-01' = {
   parent: sa
@@ -93,7 +84,7 @@ resource func 'Microsoft.Web/sites@2024-11-01' = {
         }
         {
           name: 'AcsEmailConnectionString'
-          value: comm.listKeys().primaryConnectionString
+          value: emailSvc.listKeys().primaryConnectionString
         }
         {
           name: 'BuySignalNotifier__SenderEmailAddress'
@@ -113,7 +104,7 @@ resource connStrings 'Microsoft.Web/sites/config@2024-11-01' = {
       type: 'Custom'
     }
     AcsEmailConnectionString: {
-      value: comm.listKeys().primaryConnectionString
+      value: emailSvc.listKeys().primaryConnectionString
       type: 'Custom'
     }
   }

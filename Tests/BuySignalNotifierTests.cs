@@ -1,19 +1,19 @@
-using Azure;
-using Azure.Communication.Email;
 using BuySignalNotifications;
 using FakeItEasy;
+using MailKit.Net.Smtp;
 using Microsoft.Extensions.Options;
+using MimeKit;
 
 namespace Tests;
 
 public class BuySignalNotifierTests
 {
     private readonly BuySignalNotifier _sut;
-    private readonly EmailClient _emailClient;
+    private readonly ISmtpClient _emailClient;
 
     public BuySignalNotifierTests()
     {
-        _emailClient = A.Fake<EmailClient>();
+        _emailClient = A.Fake<ISmtpClient>();
         _sut = new BuySignalNotifier(_emailClient, new OptionsWrapper<BuySignalNotifierOptions>(new BuySignalNotifierOptions
         {
             SenderEmailAddress = "donotreply@buysignalnotifications"
@@ -25,7 +25,7 @@ public class BuySignalNotifierTests
     {
         await _sut.ProcessWatchLists([new Watchlist("joskevermuelen@icloud.com")], TestContext.Current.CancellationToken);
 
-        A.CallTo(() => _emailClient.SendAsync(WaitUntil.Started, A<EmailMessage>._, TestContext.Current.CancellationToken)).MustNotHaveHappened();
+        A.CallTo(() => _emailClient.SendAsync(A<MimeMessage>._, TestContext.Current.CancellationToken, null)).MustNotHaveHappened();
     }
 
     [Fact]
@@ -33,15 +33,16 @@ public class BuySignalNotifierTests
     {
         var watchlist = new Watchlist("joskevermeulen@icloud.com");
         watchlist.RecordBuySignals([new BuySignal("AAPL", 155.06m, 133.81m), new BuySignal("GOOG", 151.06m, 113.81m)]);
-        EmailMessage sentEmail = null!;
-        A.CallTo(() => _emailClient.SendAsync(WaitUntil.Started, A<EmailMessage>._, TestContext.Current.CancellationToken)).Invokes(fakedCall => sentEmail = fakedCall.Arguments.Get<EmailMessage>(1)!);
-
+        MimeMessage sentEmail = null!;
+        A.CallTo(() => _emailClient.SendAsync(A<MimeMessage>._, TestContext.Current.CancellationToken, null)).Invokes(fakedCall => sentEmail = fakedCall.Arguments.Get<MimeMessage>(0)!);
+        
         await _sut.ProcessWatchLists([watchlist], TestContext.Current.CancellationToken);
 
         var expectedEmailBody = BuySignalEmailTemplate.Expand(DateTime.UtcNow.Date, watchlist.BuySignals);
-        Assert.Equal("donotreply@buysignalnotifications", sentEmail.SenderAddress);
-        Assert.Equal($"Buy signals for {DateTime.UtcNow.Date:dd-MM-yyyy}", sentEmail.Content.Subject);
-        Assert.Equal(watchlist.EmailAddressOfOwner, sentEmail.Recipients.To.Single().Address);
-        Assert.Equal(expectedEmailBody, sentEmail.Content.Html);
+        Assert.Equal("donotreply@buysignalnotifications", sentEmail.Sender.Address);
+        Assert.Equal($"Buy signals for {DateTime.UtcNow.Date:dd-MM-yyyy}", sentEmail.Subject);
+        var recipientEmailAddress = Assert.IsType<MailboxAddress>(sentEmail.To.Single());
+        Assert.Equal(watchlist.EmailAddressOfOwner, recipientEmailAddress.Address);
+        Assert.Equal(expectedEmailBody, sentEmail.HtmlBody);
     }
 }
