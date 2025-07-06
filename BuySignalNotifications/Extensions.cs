@@ -13,7 +13,7 @@ public static class ServiceCollectionExtensions
         services
             .AddSingleton(provider =>
             {
-                var connectionString = configuration.GetConnectionString("AzureStorage");
+                var connectionString = configuration.GetConnectionString("AzureWebJobsStorage");
                 return new BlobServiceClient(connectionString);
             })
             .AddSingleton(provider =>

@@ -55,6 +55,8 @@ resource blobServices 'Microsoft.Storage/storageAccounts/blobServices@2024-01-01
 }
 
 // 6. Function App - without linuxFxVersion initially
+var storageKey = sa.listKeys().keys[0].value
+var storageConnString = 'DefaultEndpointsProtocol=https;AccountName=${sa.name};AccountKey=${storageKey};EndpointSuffix=${environment().suffixes.storage}'
 resource func 'Microsoft.Web/sites@2024-11-01' = {
   name: '${baseName}-func'
   location: location
@@ -65,9 +67,17 @@ resource func 'Microsoft.Web/sites@2024-11-01' = {
     siteConfig: { 
       linuxFxVersion: 'DOTNET-ISOLATED|9.0'
       appSettings: [
+        { 
+            name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
+            value: ai.properties.ConnectionString 
+        }
+        { 
+            name: 'APPINSIGHTS_INSTRUMENTATIONKEY'
+            value: ai.properties.InstrumentationKey 
+        }
         {
           name: 'AzureWebJobsStorage'
-          value: 'DefaultEndpointsProtocol=https;AccountName=${sa.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${sa.listKeys().keys[0].value}'
+          value: storageConnString
         }
         {
           name: 'FUNCTIONS_EXTENSION_VERSION'
@@ -94,10 +104,25 @@ resource func 'Microsoft.Web/sites@2024-11-01' = {
   }
 }
 
+resource connStrings 'Microsoft.Web/sites/config@2024-11-01' = {
+  parent: func
+  name: 'connectionstrings'
+  properties: {
+    AzureWebJobsStorage: {
+      value: storageConnString
+      type: 'Custom'
+    }
+    AcsEmailConnectionString: {
+      value: comm.listKeys().primaryConnectionString
+      type: 'Custom'
+    }
+  }
+}
+
 // 7. Blob container for your JSON
 resource container 'Microsoft.Storage/storageAccounts/blobServices/containers@2024-01-01' = {
   parent: blobServices
-  name: 'config'
+  name: 'watchlists'
   properties: { 
     publicAccess: 'None' 
   }
