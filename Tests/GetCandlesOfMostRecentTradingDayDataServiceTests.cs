@@ -19,7 +19,7 @@ public class GetCandlesOfMostRecentTradingDayDataServiceTests
     [Theory, AutoData]
     public async Task GIVEN_data_for_several_tickers_WHEN_Get_THEN_only_returns_data_for_the_requested_tickers(Finance.Net.Models.Yahoo.Record appleRecord, Finance.Net.Models.Yahoo.Record palantirRecord)
     {
-        var startDate = DateTime.UtcNow.Date.AddDays(-1);
+        var startDate = DateTime.UtcNow.Date.AddDays(-5);
         A.CallTo(() => _yahooFinanceService.GetRecordsAsync("AAPL", startDate, null, TestContext.Current.CancellationToken)).Returns(new List<Finance.Net.Models.Yahoo.Record>
         {
             appleRecord

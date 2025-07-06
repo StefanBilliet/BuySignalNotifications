@@ -54,7 +54,7 @@ public class BuySignalFunctionTests
 
     private async Task<Watchlist> GivenSeededWatchlist(Record appleRecord, Record palantirRecord)
     {
-        var startDate = DateTime.UtcNow.Date.AddDays(-1);
+        var startDate = DateTime.UtcNow.Date.AddDays(-5);
         A.CallTo(() => _yahooFinanceService.GetRecordsAsync("AAPL", startDate, null, TestContext.Current.CancellationToken)).Returns(
             new List<Record>
             {
