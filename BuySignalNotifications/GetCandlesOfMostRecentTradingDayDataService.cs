@@ -29,12 +29,12 @@ public class GetCandlesOfMostRecentTradingDayDataService : IGetCandlesOfMostRece
         var lastDayRecords = new List<(string Ticker, Record Record)>();
         foreach (var ticker in tickers)
         {
-            var candles = (await _yahooFinanceService.GetRecordsAsync(ticker, DateTime.UtcNow.Date.AddDays(-5), null, currentCancellationToken)).OrderByDescending(record => record.Date);
+            var candles = (await _yahooFinanceService.GetRecordsAsync(ticker, DateTime.UtcNow.Date.AddDays(-5), null, currentCancellationToken)).OrderByDescending(record => record.Date).ToArray();
             if (!candles.Any())
             {
                 continue;
             }
-            var last = candles.Last();
+            var last = candles.First();
             lastDayRecords.Add((ticker, last));
         }
 
