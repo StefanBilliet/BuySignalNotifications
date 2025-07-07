@@ -23,8 +23,8 @@ public class BuySignalDetectorTests
             new WatchlistEntry("DDOG", 133.81m),
             new WatchlistEntry("TTWO", 245.47m)
         );
-        A.CallTo(() => _watchlistDataService.GetWatchLists(TestContext.Current.CancellationToken)).Returns([watchlist]);
-        A.CallTo(() => _getCandlesOfMostRecentTradingDayDataService.Get(new[] { "DDOG", "TTWO" }, TestContext.Current.CancellationToken)).Returns([
+        A.CallTo(() => _watchlistDataService.GetWatchLists(A<CancellationToken>._)).Returns([watchlist]);
+        A.CallTo(() => _getCandlesOfMostRecentTradingDayDataService.Get(new[] { "DDOG", "TTWO" }, A<CancellationToken>._)).Returns([
             new Candle("DDOG", DateTime.UtcNow.Date.AddDays(-1), 155.06m, 30000000),
             new Candle("TTWO", DateTime.UtcNow.Date.AddDays(-1), 240.21m, 1000000)
         ]);

@@ -33,7 +33,7 @@ public class BuySignalFunctionTests
     {
         var seededWatchList = await GivenSeededWatchlist(appleRecord, palantirRecord);
         MimeMessage sentEmail = null!;
-        A.CallTo(() => _emailClient.SendAsync(A<MimeMessage>._, TestContext.Current.CancellationToken, null)).Invokes(fakedCall => sentEmail = fakedCall.Arguments.Get<MimeMessage>(0)!);
+        A.CallTo(() => _emailClient.SendAsync(A<MimeMessage>._, A<CancellationToken>._, null)).Invokes(fakedCall => sentEmail = fakedCall.Arguments.Get<MimeMessage>(0)!);
         var mockContext = GivenFunctionContext();
 
         await _sut.ProcessBuySignals(new TimerInfo(), mockContext);
@@ -55,12 +55,12 @@ public class BuySignalFunctionTests
     private async Task<Watchlist> GivenSeededWatchlist(Record appleRecord, Record palantirRecord)
     {
         var startDate = DateTime.UtcNow.Date.AddDays(-5);
-        A.CallTo(() => _yahooFinanceService.GetRecordsAsync("AAPL", startDate, null, TestContext.Current.CancellationToken)).Returns(
+        A.CallTo(() => _yahooFinanceService.GetRecordsAsync("AAPL", startDate, null, A<CancellationToken>._)).Returns(
             new List<Record>
             {
                 appleRecord with { Close = 290m }
             });
-        A.CallTo(() => _yahooFinanceService.GetRecordsAsync("PLTR", startDate, null, TestContext.Current.CancellationToken)).Returns(
+        A.CallTo(() => _yahooFinanceService.GetRecordsAsync("PLTR", startDate, null, A<CancellationToken>._)).Returns(
             new List<Record>
             {
                 palantirRecord with { Close = 142.15m }
