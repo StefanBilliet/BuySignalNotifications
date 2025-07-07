@@ -1,3 +1,4 @@
+using AutoFixture;
 using BuySignalNotifications;
 using FakeItEasy;
 using MailKit.Net.Smtp;
@@ -14,10 +15,11 @@ public class BuySignalNotifierTests
     public BuySignalNotifierTests()
     {
         _emailClient = A.Fake<ISmtpClient>();
-        _sut = new BuySignalNotifier(_emailClient, new OptionsWrapper<BuySignalNotifierOptions>(new BuySignalNotifierOptions
-        {
-            SenderEmailAddress = "donotreply@buysignalnotifications"
-        }));
+        var fixture = new Fixture();
+        _sut = new BuySignalNotifier(_emailClient, new OptionsWrapper<BuySignalNotifierOptions>(fixture.Build<BuySignalNotifierOptions>()
+            .With(options => options.SenderEmailAddress, "donotreply@buysignalnotifications")
+            .Create()
+        ));
     }
 
     [Fact]
@@ -34,8 +36,9 @@ public class BuySignalNotifierTests
         var watchlist = new Watchlist("joskevermeulen@icloud.com");
         watchlist.RecordBuySignals([new BuySignal("AAPL", 155.06m, 133.81m), new BuySignal("GOOG", 151.06m, 113.81m)]);
         MimeMessage sentEmail = null!;
-        A.CallTo(() => _emailClient.SendAsync(A<MimeMessage>._, TestContext.Current.CancellationToken, null)).Invokes(fakedCall => sentEmail = fakedCall.Arguments.Get<MimeMessage>(0)!);
-        
+        A.CallTo(() => _emailClient.SendAsync(A<MimeMessage>._, TestContext.Current.CancellationToken, null))
+            .Invokes(fakedCall => sentEmail = fakedCall.Arguments.Get<MimeMessage>(0)!);
+
         await _sut.ProcessWatchLists([watchlist], TestContext.Current.CancellationToken);
 
         var expectedEmailBody = BuySignalEmailTemplate.Expand(DateTime.UtcNow.Date, watchlist.BuySignals);

@@ -21,7 +21,7 @@ public class GetCandlesOfMostRecentTradingDayDataService : IGetCandlesOfMostRece
     {
         var lastDayRecords = await GetLastDayRecords(tickers, currentCancellationToken);
 
-        return lastDayRecords.Select(tuple => new Candle(tuple.Ticker, tuple.Record.Date, tuple.Record.Close, tuple.Record.Volume)).ToArray();
+        return lastDayRecords.Select(tuple => new Candle(tuple.Ticker, tuple.Record.Date, tuple.Record.Close)).ToArray();
     }
 
     private async Task<IReadOnlyCollection<(string Ticker, Record Record)>> GetLastDayRecords(string[] tickers, CancellationToken currentCancellationToken)

@@ -25,8 +25,8 @@ public class BuySignalDetectorTests
         );
         A.CallTo(() => _watchlistDataService.GetWatchLists(A<CancellationToken>._)).Returns([watchlist]);
         A.CallTo(() => _getCandlesOfMostRecentTradingDayDataService.Get(new[] { "DDOG", "TTWO" }, A<CancellationToken>._)).Returns([
-            new Candle("DDOG", DateTime.UtcNow.Date.AddDays(-1), 155.06m, 30000000),
-            new Candle("TTWO", DateTime.UtcNow.Date.AddDays(-1), 240.21m, 1000000)
+            new Candle("DDOG", DateTime.UtcNow.Date.AddDays(-1), 155.06m),
+            new Candle("TTWO", DateTime.UtcNow.Date.AddDays(-1), 240.21m)
         ]);
         
         var watchlists = await _sut.SearchForBuySignals(TestContext.Current.CancellationToken);

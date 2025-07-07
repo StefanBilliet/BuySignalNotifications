@@ -36,7 +36,7 @@ public class GetCandlesOfMostRecentTradingDayDataServiceTests
         var closingCandles = await _sut.Get(["AAPL"], TestContext.Current.CancellationToken);
 
         var closingCandle = Assert.Single(closingCandles);
-        Assert.Equivalent(new Candle("AAPL", appleRecord.Date, appleRecord.Close, appleRecord.Volume), closingCandle);
+        Assert.Equivalent(new Candle("AAPL", appleRecord.Date, appleRecord.Close), closingCandle);
     }
 
     [Fact]
@@ -55,6 +55,6 @@ public class GetCandlesOfMostRecentTradingDayDataServiceTests
         var closingCandles = await _sut.Get(["AAPL"], TestContext.Current.CancellationToken);
 
         var closingCandle = Assert.Single(closingCandles);
-        Assert.Equivalent(new Candle("AAPL", recordOfMostRecentTradingDay.Date, recordOfMostRecentTradingDay.Close, recordOfMostRecentTradingDay.Volume), closingCandle);
+        Assert.Equivalent(new Candle("AAPL", recordOfMostRecentTradingDay.Date, recordOfMostRecentTradingDay.Close), closingCandle);
     }
 }
